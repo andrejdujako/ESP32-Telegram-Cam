@@ -23,8 +23,8 @@
 
 #include "camera_pins.h"
 
-#define BOT_TOKEN "5778940753:AAGRUal7OadBhvMYhYG7KxHtRUPebj38iq0"
-#define CHAT_ID "1803294788"
+#define BOT_TOKEN "YOUR_BOT:TOKEN_HERE_FROM_BOTFATHER"
+#define CHAT_ID "YOUR_CHAT_ID"
 #define FLASH_LED_PIN 4
 
 #define DUMMY_SERVO1_PIN 12     //We need to create 2 dummy servos.
@@ -41,7 +41,7 @@ Servo myServo;
 
 WiFiClientSecure secured_client;
 UniversalTelegramBot bot(BOT_TOKEN, secured_client);
-// Иницијализација на самиот бот кој што ќе го користиме
+
 
 int val = 90;
 String message;
@@ -65,11 +65,8 @@ void handleNewMessages(int numNewMessages)
   for (int i = 0; i < numNewMessages; i++)
   {
     String chat_id = String(bot.messages[i].chat_id);
-    // Се зема ID од корисникот кој ја пратил командата 
-    // со цел да може да се врати одговор на точното место
     
     String text = bot.messages[i].text;
-    // Пораката која се добила од корисникот
 
     String from_name = bot.messages[i].from_name;
     if (from_name == "")
@@ -103,7 +100,6 @@ void handleNewMessages(int numNewMessages)
     {
       fb = NULL; // Се чисти file buffer
       fb = esp_camera_fb_get();
-      // Пробуваме да сликаме со камерата
       if (!fb)
       {
         bot.sendMessage(chat_id, "Neuspesna slika", "");
@@ -113,8 +109,6 @@ void handleNewMessages(int numNewMessages)
       bot.sendPhotoByBinary(chat_id, "image/jpeg", fb->len,
                             isMoreDataAvailable, nullptr,
                             getNextBuffer, getNextBufferLen);
-      //sendPhotoByBinary е предефинирана фукнција од самата
-      // UniversalTelegramBot библиотека
       esp_camera_fb_return(fb);
       continue;
     }
@@ -123,11 +117,10 @@ void handleNewMessages(int numNewMessages)
     {
       flashState = !flashState;
       digitalWrite(FLASH_LED_PIN, flashState);
-      delay(2000); // го пуштаме блицот и чекаме 2 секунди
-      // за камерата да може да се прилагоди
+      delay(2000);
       fb = NULL; // Се чисти file buffer
       fb = esp_camera_fb_get();
-      // Пробуваме да сликаме со камерата
+
       if (!fb)
       {
         bot.sendMessage(chat_id, "Neuspesna slika", "");
@@ -137,8 +130,6 @@ void handleNewMessages(int numNewMessages)
       bot.sendPhotoByBinary(chat_id, "image/jpeg", fb->len,
                             isMoreDataAvailable, nullptr,
                             getNextBuffer, getNextBufferLen);
-      //sendPhotoByBinary е предефинирана фукнција од самата
-      // UniversalTelegramBot библиотека
       esp_camera_fb_return(fb);
       flashState = !flashState;
       digitalWrite(FLASH_LED_PIN, flashState);
@@ -158,16 +149,12 @@ void handleNewMessages(int numNewMessages)
       bot.sendMessage(chat_id, welcome, "Markdown");
       continue;
     }
-
-    // Најпрво мора да сме во режим на ротација
     if (text.length()!=0 and rotateFlag){
       if(text == "/reset"){val = 90; myServo.write(val); }
       if(text.length()==3 && text.startsWith("-") && isDigit(text[1]) && isDigit(text[2])){
-        text.remove(0, 1); //Тука се бриши знакот - од напред и остануваат само внесените цифри
+        text.remove(0, 1);
         val -= text.toInt();
         if (val <=0){val=0;}
-        // Серво моторот неможе да се заврти на пр. -30 степени,
-        // па затоа имаме ограничување на 0
         myServo.write(val);
       }
       else if(text.length()==2 && text.startsWith("-") && isDigit(text[1])){
@@ -180,7 +167,6 @@ void handleNewMessages(int numNewMessages)
       else if(text.length()==2 && isDigit(text[0]) && isDigit(text[1])){
         val += text.toInt();
         if (val >=180){val=180;}
-        // Истото ограничување се прави од другата страна до 180 степени
         myServo.write(val);
       }
       else if(text.length()==1 && isDigit(text[0])){
@@ -229,8 +215,8 @@ int getNextBufferLen()
     return 0;
   }
 }
-const char* ssid = "PrilepEbagoFan";
-const char* password = "andrejce666";
+const char* ssid = "YOUR_SSID";
+const char* password = "PWD";
 int test;
 void startCameraServer();
 
@@ -240,10 +226,8 @@ void setup() {
   Serial.println();
   pinMode(FLASH_LED_PIN, OUTPUT);
   digitalWrite(FLASH_LED_PIN, flashState); 
-    // Го сетираме пинот за блиц на камерата како излезен
-    // и default состојба му е исклучено
     
- dummyServo1.attach(DUMMY_SERVO1_PIN);
+  dummyServo1.attach(DUMMY_SERVO1_PIN);
   dummyServo2.attach(DUMMY_SERVO2_PIN);  
   panServo.attach(PAN_PIN);
   myServo.attach(SERVO_PIN);
